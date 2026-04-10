@@ -1,33 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { randomUUID } from 'crypto';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-
 
 @Injectable()
 export class UsersService {
-  
-  private users: User[] = [];
+  constructor(private readonly prisma: PrismaService) {}
 
   create(createUserDto: CreateUserDto) {
-    
-    const user: User = { 
-      id: randomUUID(),
-      ...createUserDto,
-    };
-
-    this.users.push(user);
-
-    return user;
+    return this.prisma.user.create({
+      data: createUserDto,
+    });
   }
 
   findAll() {
-    return this.users;
+    return this.prisma.user.findMany({
+      orderBy: { id: 'asc' },
+    });
   }
 
-  findOne(id: string) {
-    const user = this.users.find((item) => item.id === id);
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
 
     if (!user) {
       throw new NotFoundException(`User with id "${id}" not found`);
@@ -36,23 +31,20 @@ export class UsersService {
     return user;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    const user = this.findOne(id);
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    await this.findOne(id);
 
-    Object.assign(user, updateUserDto);
-
-    return user;
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  remove(id: string) {
-    const index = this.users.findIndex((item) => item.id === id);
+  async remove(id: number) {
+    await this.findOne(id);
 
-    if (index === -1) {
-      throw new NotFoundException(`User with id "${id}" not found`);
-    }
-
-    const [removedUser] = this.users.splice(index, 1);
-
-    return removedUser;
+    return this.prisma.user.delete({
+      where: { id },
+    });
   }
 }
