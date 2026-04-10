@@ -1,11 +1,13 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { User } from '../entities/user.entity';
 
-export class CreateUserDto {
-  @IsString()
+export class CreateUserDto extends User {
+
   @IsNotEmpty()
+  @IsString()
   name!: string;
 
-  @IsEmail()
   @IsNotEmpty()
+  @IsEmail()
   email!: string;
 }
