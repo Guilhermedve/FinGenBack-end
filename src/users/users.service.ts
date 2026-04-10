@@ -35,18 +35,19 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    await this.findOne(id);
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const data: Prisma.UserUpdateInput = {
+      name: updateUserDto.name,
+      email: updateUserDto.email,
+    };
 
     return this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data,
     });
   }
 
   async remove(id: number) {
-    await this.findOne(id);
-
     return this.prisma.user.delete({
       where: { id },
     });
