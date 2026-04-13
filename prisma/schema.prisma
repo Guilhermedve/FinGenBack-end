@@ -11,3 +11,21 @@ model User {
   email String @unique
   name  String
 }
+
+model Transaction {
+  id        Int      @id @default(autoincrement()) 
+  amount    Int
+  date      DateTime? @default(now())
+  userId    Int 
+  description String
+  
+} 
+
+model Purchase {
+  id        Int      @id @default(autoincrement())
+  item      String
+  price     Float
+  date      DateTime
+  userId    Int 
+  
+}
