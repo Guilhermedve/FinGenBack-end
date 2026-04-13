@@ -1,9 +1,10 @@
 generator client {
   provider = "prisma-client-js"
-  }
+}
 
 datasource db {
   provider = "postgresql"
+  
 }
 
 model User {
@@ -13,19 +14,17 @@ model User {
 }
 
 model Transaction {
-  id        Int      @id @default(autoincrement()) 
+  id          Int       @id @default(autoincrement())
   amount    Int
   date      DateTime? @default(now())
-  userId    Int 
+  userId    Int
   description String
-  
-} 
+}
 
 model Purchase {
   id        Int      @id @default(autoincrement())
   item      String
   price     Float
   date      DateTime
-  userId    Int 
-  
+  userId    Int
 }
