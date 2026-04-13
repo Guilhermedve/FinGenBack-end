@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma, User } from '@prisma/client';
+import { createHash, hash } from 'node:crypto';
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
@@ -11,6 +12,7 @@ export class UsersService {
  const data: Prisma.UserCreateInput = {
       name: createUserDto.name,
       email: createUserDto.email,
+      password: createHash('sha256').update(createUserDto.password).digest('hex'),
     };
     return this.prisma.user.create({
       data,

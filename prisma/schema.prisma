@@ -1,30 +1,87 @@
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  
+  url      = env("DATABASE_URL")
+
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  name  String
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  name         String
+  password     String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  categories   Category[]
+  budgets      Budget[]
+  transactions Transaction[]
+  purchases    Purchase[]
+}
+
+model Recurrence {
+  id           Int               @id @default(autoincrement())
+  title        String
+  amount       Decimal           @db.Decimal(10, 2)
+  type         TransactionType
+  frequency   String
+  endDate      DateTime?
+  startDate    DateTime?
+  dayOfMonth   Int?
+  transactions Transaction[]
+}
+
+model Category {
+  id           Int           @id @default(autoincrement())
+  name         String
+  color        String
+  icon         String?
+  userId       Int
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgets      Budget[]
+  transactions Transaction[]
+}
+
+model Budget {
+  id         Int      @id @default(autoincrement())
+  name       String
+  amount     Decimal  @db.Decimal(10, 2)
+  startDate  DateTime
+  endDate    DateTime
+  userId     Int
+  categoryId Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
-  id          Int       @id @default(autoincrement())
-  amount    Int
-  date      DateTime? @default(now())
-  userId    Int
-  description String
+  id           Int              @id @default(autoincrement())
+  title        String?
+  amount       Decimal          @db.Decimal(10, 2)
+  type         TransactionType  @default(EXPENSE)
+  date         DateTime?        @default(now())
+  description  String
+  userId       Int
+  categoryId   Int?
+  recurrenceId Int?
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  recurrence   Recurrence?      @relation(fields: [recurrenceId], references: [id], onDelete: SetNull)
 }
 
 model Purchase {
   id        Int      @id @default(autoincrement())
   item      String
-  price     Float
-  date      DateTime
+  price     Decimal  @db.Decimal(10, 2)
+  date      DateTime @default(now())
   userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
 }
